@@ -29,9 +29,16 @@ const yAxis = svg.append('g').attr('transform', `translate(${margin*2}, 0)`);
 // Part 2: define color and radius scales
 // const color = d3.scaleOrdinal()...
 // const r = d3.scaleSqrt()...
+const color = d3.scaleOrdinal().range(colors);
+const r = d3.scaleSqrt().range([2, 25]);
 
 // Part 2: add options to select element http://htmlbook.ru/html/select
 // and add selected property for default value
+d3.select('#radius').selectAll('option')
+            .data(params)
+            .enter().append("option")
+            .property("selected", function(d) { return d === "gdp"; })
+            .text(function(d) { return d; });
 
 // d3.select('#radius').selectAll('option')
 //         ...
@@ -50,6 +57,8 @@ loadData().then(data => {
 
     //let regions = d3.nest()...
     //color.domain(regions);
+    let regions = d3.nest().key(function (d) {return d.region}).entries(data);
+    color.domain(regions);
 
     d3.select('.slider').on('change', newYear);
 
@@ -66,6 +75,8 @@ loadData().then(data => {
 
     function newRadius(){
         // Part 2: similar to 'newYear'
+        radius = this.value;
+        updateChart()
     }
     function updateChart(){
         xLable.text(xParam);
@@ -88,6 +99,8 @@ loadData().then(data => {
         
         // Part 2: change domain of new scale
         // ...
+        let rRange = data.map(d => +d[radius][year]);
+        r.domain([d3.min(rRange), d3.max(rRange)]);
 
         // Part 1, 2: create and update points
         // svg.selectAll('circle').data(data)
@@ -97,12 +110,16 @@ loadData().then(data => {
          .attr("cx", function(d, i) { return x(xRange[i]); })
          .attr("cy", function(d, i) { return y(yRange[i]); })
          .attr("r", 5)
+         .attr("fill", d => color(d['region']) )
+         .attr("r", d => r(d[radius][year]))
          .attr("opacity", 0.5);
 
         points_to_draw.enter().append("circle")
          .attr("cx", function(d, i) { return x(xRange[i]); })
          .attr("cy", function(d, i) { return y(yRange[i]); })
          .attr("r", 5)
+         .style("fill",  d => color(d['region']))
+         .attr("r", d => r(d[radius][year]))
          .attr("opacity", 0.5);
 
         points_to_draw.exit().remove();
