@@ -22,8 +22,8 @@ const xLable = svg.append('text').attr('transform', `translate(${width/2}, ${hei
 const yLable = svg.append('text').attr('transform', `translate(${margin/2}, ${height/2}) rotate(-90)`);
 
 // Part 1: similar to rows above, set the 'transform' attribute for axis
-const xAxis = svg.append('g') // .attr('transform', ... 
-const yAxis = svg.append('g')// .attr('transform', ...
+const xAxis = svg.append('g').attr('transform', `translate(0, ${height - margin})`);
+const yAxis = svg.append('g').attr('transform', `translate(${margin*2}, 0)`);
 
 
 // Part 2: define color and radius scales
@@ -76,11 +76,15 @@ loadData().then(data => {
         let xRange = data.map(d=> +d[xParam][year]);
         x.domain([d3.min(xRange), d3.max(xRange)]);
 
+        let yRange = data.map(d=> +d[yParam][year]);
+        y.domain([d3.min(yRange), d3.max(yRange)]);
+
         // call for axis
-        //xAxis.call(d3.axisBottom(x));    
+        xAxis.call(d3.axisBottom().scale(x));
 
         // Part 1: create 'y axis' similary to 'x'
         // ...
+        yAxis.call(d3.axisLeft().scale(y));
         
         // Part 2: change domain of new scale
         // ...
@@ -88,6 +92,21 @@ loadData().then(data => {
         // Part 1, 2: create and update points
         // svg.selectAll('circle').data(data)
         //     ...
+        var points_to_draw = svg.selectAll("circle")
+         .data(data)
+         .attr("cx", function(d, i) { return x(xRange[i]); })
+         .attr("cy", function(d, i) { return y(yRange[i]); })
+         .attr("r", 5)
+         .attr("opacity", 0.5);
+
+        points_to_draw.enter().append("circle")
+         .attr("cx", function(d, i) { return x(xRange[i]); })
+         .attr("cy", function(d, i) { return y(yRange[i]); })
+         .attr("r", 5)
+         .attr("opacity", 0.5);
+
+        points_to_draw.exit().remove();
+
     }
 
     // draw a chart for the first time
