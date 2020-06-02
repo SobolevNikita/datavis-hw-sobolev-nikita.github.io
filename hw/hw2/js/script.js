@@ -45,7 +45,22 @@ d3.select('#radius').selectAll('option')
 
 
 // Part 3: similar to above, but for axis
-// ...
+const selectxAxis = d3.select('.selectors').append('div').text("X:").append('select').attr('id', 'x') ;
+const selectyAxis = d3.select('.selectors').append('div').text("Y:").append('select').attr('id', 'y') ;
+
+selectxAxis.selectAll("option")
+         .data(params)
+         .enter()
+         .append("option")
+         .property("selected", function(d) { return d === "fertility-rate"; })
+         .text(d => d);
+
+selectyAxis.selectAll("option")
+         .data(params)
+         .enter()
+         .append("option")
+         .property("selected", function(d) { return d === "child-mortality"; })
+         .text(d => d); 
 
 
 loadData().then(data => {
@@ -66,7 +81,19 @@ loadData().then(data => {
 
     // Part 3: subscribe to axis selectors change
     // ...
+    d3.select('#x').on('change', updateX);
+    d3.select('#y').on('change', updateY);
 
+    function updateY(){
+        yParam = this.value;
+        updateChart()
+    }
+
+    function updateX(){
+        xParam = this.value;
+        updateChart()
+    }
+    
     // change 'year' value
     function newYear(){
         year = this.value;
@@ -78,6 +105,7 @@ loadData().then(data => {
         radius = this.value;
         updateChart()
     }
+
     function updateChart(){
         xLable.text(xParam);
         yLable.text(yParam);
