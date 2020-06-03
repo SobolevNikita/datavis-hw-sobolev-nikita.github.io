@@ -89,7 +89,7 @@ d3.csv('data/netflix.csv').then(data=>{
 
     // Part 1 - create layout with d3.pie() based on rating
     // ..
-    var pie = d3.pie().value(function(d) { return d.value; });
+    const pie = d3.pie().value((d) => d.value);
     
     // Part 1 - create an d3.arc() generator
     // ..
@@ -115,9 +115,12 @@ d3.csv('data/netflix.csv').then(data=>{
         //.on('mouseout', outOfArc);
 
     function overBubble(d){
-        console.log(d)
         // Part 2 - add stroke and stroke-width   
         // ..
+        d3.select(this)
+            .style("stroke", "black")
+            .style("stroke-width", 3); 
+        console.log(d)
         
         // Part 3 - updata tooltip content with title and year
         // ..
@@ -128,17 +131,22 @@ d3.csv('data/netflix.csv').then(data=>{
     function outOfBubble(){
         // Part 2 - remove stroke and stroke-width
         // ..
-            
+        d3.select(this)
+            .style("stroke", "")
+            .style("stroke-width", "")
         // Part 3 - change visibility of tooltip
         // ..
     }
 
-    function overArc(d){
+    function overArc(d,i){
         console.log(d)
         // Part 2 - change donut_lable content
         // ..
+        donut_lable.text(age_rating[i].key);
+
         // Part 2 - change opacity of an arc
         // ..
+        d3.select(this).style('opacity', 0.5);
 
         // Part 3 - change opacity, stroke и stroke-width of circles based on rating
         // ..
@@ -146,9 +154,10 @@ d3.csv('data/netflix.csv').then(data=>{
     function outOfArc(){
         // Part 2 - change content of donut_lable
         // ..
+        donut_lable.text("");
         // Part 2 - change opacity of an arc
         // ..
-
+        d3.select(this).style('opacity', 1);
         // Part 3 - revert opacity, stroke and stroke-width of circles
         // ..
     }
