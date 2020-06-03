@@ -36,32 +36,80 @@ d3.csv('data/netflix.csv').then(data=>{
     const rating = data.map(d=>+d['user rating score']);
     const years = data.map(d=>+d['release year']);
     let ratings = d3.nest().key(d=>d.rating).rollup(d=>d.length).entries(data);
-    
-    
+    let age_rating = d3.nest().key(d=>d.rating).rollup(d=>d.length).entries(data);
+    console.log(age_rating)
     // Part 1 - add domain to color, radius and x scales 
     // ..
+    radius.domain([d3.min(rating), d3.max(rating)]);
+    color.domain(age_rating);
+    x.domain([d3.min(years), d3.max(years)]);
+
+    nodes = [];
+    for (let i = 0; i < data.length; i++) { 
+        nodes.push({});
+    }
     
+
+    simulation.force('x', d3.forceX().x(function(d,i) {
+                        return x(years[i]);
+                      }))
+                .force('y', d3.forceY().y(function(d) {
+                        return 0;
+                      }))
+                .force('collision', d3.forceCollide().radius(function(d,i) {
+                        return radius(rating[i]);
+                      }))
+                .force('center', d3.forceCenter(b_width/2, b_height/2) );
+
     // Part 1 - create circles
-    var nodes = bubble
+    var node = bubble
         .selectAll("circle")
-        // ..
+        .data(nodes)
+        .enter()
+        .append('circle')
+        .attr("fill", (d,i) => color(data[i].rating))
+        .attr('r', (d,i) => radius(rating[i]))
+        .attr('class', (d,i) => data[i].rating)
+        .on('mouseover', overBubble)
+        .on('mouseout', outOfBubble);
     // mouseover and mouseout event listeners
             // .on('mouseover', overBubble)
             // .on('mouseout', outOfBubble);
 
     
     // Part 1 - add data to simulation and add tick event listener 
-    // ..
+    // ..      
+    simulation.nodes(nodes).on("tick", ticked);
+
+    function ticked(d) {
+        node
+            .attr("cy", function(d) { return d.y; })
+            .attr("cx", function(d) { return d.x; });
+    }
 
     // Part 1 - create layout with d3.pie() based on rating
     // ..
+    var pie = d3.pie().value(function(d) { return d.value; });
     
     // Part 1 - create an d3.arc() generator
     // ..
+    var arcs = d3.arc()
+                .innerRadius(100) // it'll be donut chart
+                .outerRadius(180)
+                .padAngle(0.01)
+                .cornerRadius(3)
     
     // Part 1 - draw a donut chart inside donut
     // ..
-
+    donut.selectAll('path')
+          .data(pie(age_rating))
+          .enter()
+          .append('path')
+          .attr('d', arcs)
+          .attr('fill', d => color(d.data.key))
+          .style("opacity", 1)
+          .on('mouseover', overArc)
+          .on('mouseout', outOfArc);
     // mouseover and mouseout event listeners
         //.on('mouseover', overArc)
         //.on('mouseout', outOfArc);
