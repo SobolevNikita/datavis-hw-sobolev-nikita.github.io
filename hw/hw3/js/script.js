@@ -114,7 +114,7 @@ d3.csv('data/netflix.csv').then(data=>{
         //.on('mouseover', overArc)
         //.on('mouseout', outOfArc);
 
-    function overBubble(d){
+    function overBubble(d,i){
         // Part 2 - add stroke and stroke-width   
         // ..
         d3.select(this)
@@ -124,6 +124,11 @@ d3.csv('data/netflix.csv').then(data=>{
         
         // Part 3 - updata tooltip content with title and year
         // ..
+        tooltip.html(data[i].title + "<br>" + data[i]["release year"])
+                .style("left", d3.event.pageX + "px")     
+                .style("top", d3.event.pageY + "px")
+                .style('display',"block").style('opacity', 0.9)
+                .style('background', "white");
 
         // Part 3 - change visibility and position of tooltip
         // ..
@@ -133,9 +138,10 @@ d3.csv('data/netflix.csv').then(data=>{
         // ..
         d3.select(this)
             .style("stroke", "")
-            .style("stroke-width", "")
+            .style("stroke-width", 0)
         // Part 3 - change visibility of tooltip
         // ..
+        tooltip.style("display", "none");
     }
 
     function overArc(d,i){
@@ -150,6 +156,11 @@ d3.csv('data/netflix.csv').then(data=>{
 
         // Part 3 - change opacity, stroke и stroke-width of circles based on rating
         // ..
+        node.style('opacity', 0.6)
+        var chosen = bubble.selectAll('circle[class='+ age_rating[i].key +']')
+            .style('opacity', 1)
+            .style("stroke", "black")
+            .style("stroke-width", 3);
     }
     function outOfArc(){
         // Part 2 - change content of donut_lable
@@ -160,5 +171,8 @@ d3.csv('data/netflix.csv').then(data=>{
         d3.select(this).style('opacity', 1);
         // Part 3 - revert opacity, stroke and stroke-width of circles
         // ..
+        node.style('opacity', 1)
+            .style("stroke", "")
+            .style("stroke-width", 0);
     }
 });
