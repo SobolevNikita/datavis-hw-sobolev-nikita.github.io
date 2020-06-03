@@ -1,36 +1,14 @@
-<!DOCTYPE>
+<!DOCTYPE html>
 <html>
-<head>
-	<title>Visualization</title>
-	<meta charset=”utf-8”>
-</head>
-<body>
-	<!— <input type="checkbox" id="smile" onchange="fun1()"> —>
-		<svg width="500" height="500">
-			<circle cx="250" cy="250" r="150" fill="yellow">
-			</circle>
-			<ellipse cx="300" cy="200" rx="30" ry="30">
-			</ellipse>
-			<ellipse cx="200" cy="220" rx="25" ry="25">
-			</ellipse>
-			<path id="curve" stroke="black" d="M150 350 Q 225 250 350 350" fill="transparent" >
-		</svg>
-	<input type="checkbox" id="smile" name="option" value="a" onclick="change();"/>
-	<label id="lb">Sad</label>
-
-	<script>
-		function change() {
-			var checkBox = document.getElementById("smile");
-			var curve = document.getElementById("curve");
-			var lb = document.getElementById("lb");
-			if (checkBox.checked){
-				lb.innerHTML = "Happy";
-				curve.setAttribute("d", "M150 300 Q 225 400 350 300");
-			} else {
-				curve.setAttribute("d", "M150 350 Q 225 250 350 350");
-				lb.innerHTML = "Sad";
-			}
-		}
-	</script>
-</body>
+    <title>HW3</title>
+    <meta charset="utf-8">
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <link href="https://sobolevnikita.github.io/datavis-hw-sobolev-nikita.github.io/hw/hw3/css/style.css" rel="stylesheet"/>
 </html>
+<body>
+    <h1>Netflix serials</h1>
+    <div class="tooltip"></div>
+    <svg class="bubble-chart"></svg>
+    <svg class="donut-chart"></svg>
+    <script src="https://sobolevnikita.github.io/datavis-hw-sobolev-nikita.github.io/hw/hw3/js/script.js"></script>
+</body>
