@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta charset="UTF-8">
         <title>HW 4</title>
         <script src="https://d3js.org/d3.v5.min.js"></script>
         <script src="https://unpkg.com/d3-simple-slider"></script>
@@ -36,15 +37,15 @@
                 const noColor = '#CDCCCC'; // default country color
 
                 // TODO Part 1: here you can create a linear scale based on colors
-                //  const color = ...
+                const color = d3.scaleLinear().range(colors);
                 
                 // years array
                 const years = Object.keys(data[0][param]).map(d=>+d).filter(d=>d);
 
                 // TODO Part 2: here you can create х & y scales
                 // ...
-                //const x = d3.scaleBand(years, [0, width]).padding(.1);
-                // y = d3.scaleLinear().range([sliderHeight, 0]);
+                const x = d3.scaleBand(years, [0, width]).padding(.1);
+                y = d3.scaleLinear().range([sliderHeight, 0]);
                 
                 // TODO Part 3: here you can create an svg inside #menu and add a legend
                 // ...
@@ -100,12 +101,37 @@
 
                 // TODO Part 1: here you can create a projection d3.geoEquirectangular() and a geopath generator
                 // ...
+                var projection = d3.geoEquirectangular().translate([width / 2, height / 2]);
+
+                var geoGenerator = d3.geoPath()
+                    .projection(projection);
+
 
                 // TODO Part 1: here you can create a map
                 // const map = ...
+                const map = svg.append('g')
+                    .selectAll('path')
+                    .data(world.features)
+                    .enter()
+                    .append("path")
+                    .attr("class", "land")
+                    .attr("d", geoGenerator)
+                    .attr("fill", noColor);
                 
                 // TODO Part 1: add a mouse event listener to display country name inside #country
                 // ...
+                var mapEvents = map.on('mouseover', overBubble)
+                    .on('mouseout', outBubble)
+
+                function overBubble(d){
+                    d3.select('#country').text(d.properties.name);
+                    console.log(d);
+                }
+
+                function outBubble(d){
+                    d3.select('#country').text("");
+                    console.log(d);
+                }
 
                 // this function'll update both charts when any parameter changes
                 function update(){
@@ -113,15 +139,21 @@
                     d3.select('#year').text(year);
 
                     // update color scale domain
-                    //color.domain(d3.extent(data.map(d=>+d[param][year])));
+                    color.domain(d3.extent(data.map(d=>+d[param][year])));
 
                     // change country's colors
-                    // map.attr('fill', feature =>{
-                    //         // findin' a countrys data item
-                    //         let country = data.find(d=>d.geo === feature.id.toLowerCase());
-                    //         // TODO Part 1: fill country's path based on chosen param
-                    //         // ...
-                    //     });
+                    map.attr('fill', feature =>{
+                            // findin' a countrys data item
+                            let country = data.find(d=>d.geo === feature.id.toLowerCase());
+                            // TODO Part 1: fill country's path based on chosen param
+                            try  {
+                                var country_color = color(country[param][year]);
+                            } catch(err) {
+                                var country_color = noColor;
+                            }
+                            // ...
+                            return country_color;
+                        });
 
                     // make an array for barchart
                     let array = years.map(y=>d3.sum(data.map(d=>+d[param][y])));
