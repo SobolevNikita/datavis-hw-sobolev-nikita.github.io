@@ -16,7 +16,7 @@
             <input type="radio" name="param" value="life-expectancy"> life-expectancy<br>
             <input type="radio" name="param" value="fertility-rate"> fertility-rate<br>
         </div>
-        <div id="slider"></div>
+        <div id="slider" class="my_slider"></div>
         <script type="text/javascript">
             loadData().then(({data, world})=>{
                 console.log(data, world);
@@ -45,26 +45,38 @@
                 // TODO Part 2: here you can create х & y scales
                 // ...
                 const x = d3.scaleBand(years, [0, width]).padding(.1);
-                y = d3.scaleLinear().range([sliderHeight, 0]);
-                
-                // TODO Part 3: here you can create an svg inside #menu and add a legend
-                // ...
-                // const legend = d3.select('#menu').append('svg')
-                //     .attr('width', 200).attr("height", 40)
-                // let gradient = legend.append('defs')
-                //     .append("svg:linearGradient")
-                //         .attr("id", "gradient");
+                const y = d3.scaleLinear().range([sliderHeight, 0]);
 
-                // gradient.append('stop').attr('offset', '0%')
-                //     .style("stop-color", colors[0]);
-                // gradient.append('stop').attr('offset', '100%')
-                //     .style("stop-color", colors[1]);
+                const legend = d3.select('#menu').append('svg')
+                    .attr('width', 200).attr("height", 40);
+                let gradient = legend.append('defs')
+                    .append("svg:linearGradient")
+                        .attr("id", "gradient");
 
-                // legend.append('rect')
-                //     .attr('width', 200).attr("height", 20)
-                //     .style("fill", "url(#gradient)");
+                gradient.append('stop').attr('offset', '0%')
+                    .style("stop-color", colors[0]);
+                gradient.append('stop').attr('offset', '100%')
+                    .style("stop-color", colors[1]);
 
-                // const axis = legend.append('g').attr('id','axis').attr('transform', 'translate(0,20)');
+                legend.append('rect')
+                    .attr('width', 200).attr("height", 20)
+                    .style("fill", "url(#gradient)");
+
+                const axis = legend.append('g').attr('id','axis').attr('transform', 'translate(0,20)');
+
+                var gr = d3.scaleLinear()
+                    .range([200, 0])
+
+                    var yAxis = d3.axisBottom()
+                    .scale(gr)
+                    .ticks(4);
+
+                axis
+                    .call(yAxis)
+                    .append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", 0)
+                    .style("text-anchor", "end");
 
                 // call update() when param changes
                 d3.selectAll('input[name="param"]').on('change',function(){
@@ -125,12 +137,10 @@
 
                 function overBubble(d){
                     d3.select('#country').text(d.properties.name);
-                    console.log(d);
                 }
 
                 function outBubble(d){
                     d3.select('#country').text("");
-                    console.log(d);
                 }
 
                 // this function'll update both charts when any parameter changes
@@ -159,13 +169,36 @@
                     let array = years.map(y=>d3.sum(data.map(d=>+d[param][y])));
                     // TODO Part 2: update y scale domain
                     // ...
+                    y.domain(d3.extent(array));
 
-                    // TODO Part 2: create and update barchart
-                    // ...
+                    var u = chart.selectAll("rect")
+                        .data(array);
 
-                    
-                    // TODO Part 3: update legend axis based on param 
-                    // ...
+                    u
+                        .enter()
+                        .append("rect")
+                        .merge(u)
+                        .transition()
+                        .duration(1000)
+                        .attr("x", function (d, index) {
+                            return x(years[index]);
+                        })
+                        .attr("y", function (d) {
+                            return y(d);
+                        })
+                        .attr("width", x.bandwidth())
+                        .attr("height", function (d) {
+                            return 100;
+                        })
+                        .attr("fill", "#69b3a2");
+
+                    u
+                        .exit()
+                        .remove()
+
+                    gr.domain(d3.extent(array).reverse());
+                    axis.call(yAxis);
+
                 }
                 // call update() for the first time
                 update();
